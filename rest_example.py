@@ -1,8 +1,12 @@
 import requests
 import json
 
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+
 SESSION = requests.Session()
 BASE_URL = None
+HEADERS = None
 TOKEN = None
 
 def login(ip, un="admin", pswd="CHGME.1a"):
@@ -19,14 +23,37 @@ def login(ip, un="admin", pswd="CHGME.1a"):
 
   global TOKEN
   TOKEN = resp.headers["X-Auth-Token"]
+  global HEADERS
+  HEADERS = {
+    "X-Auth-Token":TOKEN,
+    "Content-Type":"application/json; ext=nn"
+  }
 
+def logout():
+  kwargs = {
+    "url": "%s/auth?actn=lgout" % (BASE_URL),
+    "headers": HEADERS,
+    "verify": False
+  }
+  resp = SESSION.post(**kwargs)
 
 def get(relative_url):
   kwargs = {
     "url": "%s/%s" % (BASE_URL, relative_url),
-    "headers": {"X-Auth-Token":TOKEN, "Content-Type":"application/json; ext=nn"},
+    "headers": HEADERS,
     "verify": False
   }
   resp = SESSION.get(**kwargs)
-  return resp.json()["result"]
+  return resp.json()
+
+def print_as_json(data, indent=2):
+  print json.dumps(data, indent=indent)
+
+"""
+from rest_example import *
+login("10.16.24.5")
+result = get("col/eq")["result"]
+
+
+"""
 
