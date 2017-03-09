@@ -46,6 +46,15 @@ def get(relative_url):
   resp = SESSION.get(**kwargs)
   return resp.json()
 
+def get_col(relative_url):
+  kwargs = {
+    "url": "%s/%s" % (BASE_URL, relative_url),
+    "headers": HEADERS,
+    "verify": False
+  }
+  resp = SESSION.get(**kwargs)
+  return resp.json()
+
 def print_as_json(data, indent=2):
   print json.dumps(data, indent=indent)
 
@@ -114,35 +123,74 @@ def get_pm(uri):
 #SYSTEM
 ip="10.16.24.50"
 shelf_id=1
-login(ip)
+#login(ip)
 
 #QFLEX NETWORK
-slot_id=1
-port="nw"
-uri="/mit/me/1/eqh/shelf,%s/eqh/slot,%s/eq/card/ptp/%s,1/opt" % (shelf_id,slot_id,port)
-dict=get_pm(uri)
-print dict
+#slot_id=1
+#port="nw"
+#uri="/mit/me/1/eqh/shelf,%s/eqh/slot,%s/eq/card/ptp/%s,1/opt" % (shelf_id,slot_id,port)
+#dict=get_pm(uri)
+#print dict
 
 #QFLEX CLIENT OPTM - currently broken
-slot_id=1
-port="cl"
-uri="/mit/me/1/eqh/shelf,%s/eqh/slot,%s/eq/card/ptp/%s,1/optm/optl/1" % (shelf_id,slot_id,port)
-dict=get_pm(uri)
-print dict
+#slot_id=1
+#port="cl"
+#uri="/mit/me/1/eqh/shelf,%s/eqh/slot,%s/eq/card/ptp/%s,1/optm/optl/1" % (shelf_id,slot_id,port)
+#dict=get_pm(uri)
+#print dict
 
 #AMP NETWORK
-slot_id=2
-port="nw"
-uri="/mit/me/1/eqh/shelf,%s/eqh/slot,%s/eq/card/ptp/%s,1/opt" % (shelf_id,slot_id,port)
-dict=get_pm(uri)
-print dict
+#slot_id=2
+#port="nw"
+#uri="/mit/me/1/eqh/shelf,%s/eqh/slot,%s/eq/card/ptp/%s,1/opt" % (shelf_id,slot_id,port)
+#dict=get_pm(uri)
+#print dict
 
 #AMP CLIENT
-slot_id=2
-port="cl"
-uri="/mit/me/1/eqh/shelf,%s/eqh/slot,%s/eq/card/ptp/%s,1/opt" % (shelf_id,slot_id,port)
-dict=get_pm(uri)
-print dict
+#slot_id=2
+#port="cl"
+#uri="/mit/me/1/eqh/shelf,%s/eqh/slot,%s/eq/card/ptp/%s,1/opt" % (shelf_id,slot_id,port)
+#dict=get_pm(uri)
+#print dict
+
+#logout()
+login(ip)
+
+#HERE NEED TO ADD A CODE WHICH READS ALL CARDS AND RETURNS WHICH CARDS DON'T SUPPORT PMs
+ignore_slot = '6'
+
+#GET ALL PTPs FROM THE SYSTEM
+dict=get_col('col/ptp')
+list=dict["result"]
+list_of_interfaces = [] 
+for row in list:
+  #print row["self"]
+  list_of_interfaces.append(row["self"])
+#print list_of_interfaces
+
+#PRINT PM DICTIONARY FOR EACH POSSIBLE INTERFACE
+for row in list_of_interfaces:
+
+  #GET MONITORING LAYER NAME
+  dict= get(row)
+
+  #CHECK IF PMs supported  if not ignore
+  if ignore_slot in row:
+    continue
+  if 'ecm' in row:
+    continue
+  if 'cem' in row:
+    continue
+
+  #BUILD URI
+  layer_list=dict["layer"]
+  pm_layer=layer_list[0]
+  print row
+  uri="%s/%s" % (row, pm_layer)
+  dict=get_pm(uri)
+  print dict
+
+logout()
 
 """
 from rest_example import *
