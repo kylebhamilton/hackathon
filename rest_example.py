@@ -39,7 +39,7 @@ def logout():
 
 def get(relative_url):
   kwargs = {
-    "url": "%s/%s" % (BASE_URL, relative_url),
+    "url": "%s/%s" % (BASE_URL, relative_url.strip('/')),
     "headers": HEADERS,
     "verify": False
   }
@@ -51,8 +51,12 @@ def print_as_json(data, indent=2):
 
 """
 from rest_example import *
-login("10.16.24.5")
-result = get("col/eq")["result"]
+login("10.16.24.9")
+
+eqh_list = LIB.read_all_params('/col/eqh?filter={"sl":{"$exists":true},"$ancestorsIn":["/mit/me/1/eqh/sh,1"]}')["result"]
+
+eqh_list = get("col/eq")["result"]
+eqtyp_list = filter(lambda x: x != "cnone", [eqh["sl"]["eqtyp"] for eqh in eqh_list if (eqh["type"] == "slot")])
 
 
 """
