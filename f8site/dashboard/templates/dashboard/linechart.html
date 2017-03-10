@@ -1,0 +1,50 @@
+<script>
+  d3.json("{{ json_url }}", function(data) {
+    nv.addGraph(function() {
+      var chart = nv.models.lineChart()
+         .x(function(d) { return d.x })
+         .y(function(d) { return d.y })
+         .margin({left: 100})
+         .useInteractiveGuideline(true)
+         .transitionDuration(350)
+         .showLegend(true)
+         .showYAxis(true)
+         .showXAxis(true)
+         ;
+
+      chart.xAxis
+        .axisLabel('{{ x_label }}')
+        {% if x_is_date %}
+          .tickFormat(function(d) { return d3.time.format('%Y-%m-%d')(new Date(1000*d)) })
+        {% else %}
+          .tickFormat(d3.format('d'));
+        {% endif %}
+        ;
+
+      chart.yAxis
+        .axisLabel('{{ y_label }}')
+        .tickFormat(d3.format('d'))
+        ;
+
+      d3.select('#{{ chart_name }} svg')
+        .datum(data)
+        .call(chart)
+        ;
+
+      $('#{{ chart_name }} svg').on('click', function(e){
+        $('#log').text("mylink");
+      })
+
+      nv.utils.windowResize(function() { chart.update() });
+
+      return chart;
+    });
+  })
+</script>
+
+<div id='{{ chart_name }}'>
+    <svg style='height:{{ chart_height }}px;width:{{ chart_width }}px'> </svg>
+</div>
+
+<div id='log'>Initial</div>
+

@@ -1,0 +1,37 @@
+*
+{
+font-family: "Lucida Grande", Sans-Serif;
+}
+
+body
+{
+  line-height: 1.6em;
+}
+
+#entity_table
+{
+  font-size: 12px;
+  background: #fff;
+  margin: 45px;
+  width: 480px;
+  border-collapse: collapse;
+  text-align: left;
+}
+#entity_table th
+{
+  font-size: 14px;
+  font-weight: normal;
+  padding: 10px 8px;
+  border-bottom: 2px solid;
+}
+#entity_table td
+{
+  border-bottom: 1px solid #ccc;
+  padding: 6px 8px;
+}
+#entity_table tbody tr:hover td
+{
+  color: #009;
+	background: #eff2ff;
+}
+

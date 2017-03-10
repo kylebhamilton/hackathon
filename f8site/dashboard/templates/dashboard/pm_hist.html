@@ -1,0 +1,38 @@
+{% load staticfiles %}
+{% load chart_tags %}
+
+<head>
+    <link rel="stylesheet" type="text/css" media="screen" href="{% static 'dashboard/dashboard.css' %}?column_width=0&column_amount=3&gutter_width=0"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'dashboard/table.css' %}"/>
+    {% include 'dashboard/nvd3_header.html' %}
+</head>
+
+
+<body>
+
+    <div class="container container_3">
+
+        <h1 class="grid_3">PM History</h1>
+
+        {% if json_url %}
+            <div class='grid_3'><p>
+                {% line_chart 'DefectsChart' json_url|safe %}
+            </p></div>
+        {% endif %}
+
+        <div class='grid_1'>
+            <form method="post">
+                {% csrf_token %}
+                {{ modtypes_form }}<br>
+                {{ wfi_form }}<br>
+                <br>
+                <input type="submit" value="Generate Chart" />
+            </form>
+        </div>
+        <div class='grid_1'>
+          <p>{{ wfi }}</p>
+        </div>
+    </div>
+
+</body>
+

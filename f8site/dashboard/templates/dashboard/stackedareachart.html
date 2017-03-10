@@ -1,0 +1,67 @@
+{% load list_tags %}
+
+<script>
+  d3.json("{{ json_url }}", function(data) {
+    nv.addGraph(function() {
+      var chart = nv.models.stackedAreaChart()
+        .x(function(d) { return d.x })
+        .y(function(d) { return d.y })
+        .margin({right: 100})
+        .color(colorFunction())
+        .useInteractiveGuideline(true)  //Tooltips which show all data points. Very nice!
+        .rightAlignYAxis(true)          //Let's move the y-axis to the right side.
+        .transitionDuration(500)
+        .showControls(true)             //Allow user to choose 'Stacked', 'Stream', 'Expanded' mode.
+        .clipEdge(true);
+
+      //Format x-axis labels with custom function.
+      chart.xAxis
+        .axisLabel('{{ x_label }}')
+        {% if x_is_date %}
+          .tickFormat(function(d) { return d3.time.format('%Y-%m-%d')(new Date(1000*d)) })
+        {% else %}
+          .tickFormat(d3.format('d'));
+        {% endif %}
+        ;
+
+      chart.yAxis
+        .axisLabel('{{ y_label }}')
+        .tickFormat(d3.format('d'))
+        ;
+
+      d3.select('#{{ chart_name }} svg')
+        .datum(data)
+        .call(chart);
+
+      $('#{{ chart_name }} svg').on('click', function(e){
+        var elem = $(e.target), currentItem, currentUrl;
+
+        if(elem.parent('.nv-point-paths').length) {
+          //currentItem = e.target.getAttribute('class').match(/\d+/)["x"];
+          //currentUrl = data["x"].urls[ currentItem ];
+
+          $('#log').text("mylink");
+          //window.location = currentUrl
+        }
+      })
+
+      nv.utils.windowResize(chart.update);
+
+      return chart;
+    });
+
+    function colorFunction() {
+      var colors = d3.scale.category20().range();
+      return function(d, i) {
+        return d.color || colors[i % colors.length]
+      };
+    };
+  })
+</script>
+
+<div id='{{ chart_name }}'>
+    <svg style='height:{{ chart_height }}px;width:{{ chart_width }}px'> </svg>
+</div>
+
+<div id='log'></div>
+

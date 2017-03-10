@@ -1,0 +1,62 @@
+<script>
+{% if json_url %}
+  d3.json("{{ json_url }}", function(data) {
+{% endif %}
+    nv.addGraph(function() {
+      var chart = nv.models.pieChart()
+          .x(function(d) { return d.key })
+          .y(function(d) { return d.value })
+          .showLabels(true)
+          .labelThreshold(.05)  //Configure the minimum slice size for labels to show up
+          .labelType("percent") //Configure what type of data to show in the label. Can be "key", "value" or "percent"
+          {% if chart_colors %}
+            .color([{% for color in chart_colors %}'{{ color }}'{% if not forloop.last %}, {% endif %}{% endfor %}])
+          {% else %}
+            .color(colorFunction())
+          {% endif %}
+          .tooltipContent(function(key, y, e, graph) {
+            return '<h3>' + key + '</h3>' + '<p>' + ~~y + '</p>'
+          })
+          ;
+
+{% if not json_url %}
+        var data = dataFunction();
+{% endif %}
+
+        d3.select("#{{ chart_name }} svg")
+            .datum(data)
+            .transition().duration(350)
+            .call(chart);
+
+      return chart;
+    });
+
+    function colorFunction() {
+      var colors = d3.scale.category20().range();
+      return function(d, i) {
+        return d.data.color || colors[i % colors.length]
+      };
+    };
+
+{% if not json_url %}
+    //Pie chart data. Note how there is only a single array of key-value pairs.
+    function dataFunction() {
+      return  [
+          {% for key, value in chart_data.items %}
+            {
+              "key":   "{{ label }}",
+              "value" : {{ value }}
+            } {% if not forloop.last %},{% endif %}
+          {% endfor %}
+        ];
+    }
+{% endif %}
+
+{% if json_url %}
+  })
+{% endif %}
+</script>
+
+<div id='{{ chart_name }}'>
+    <svg style='height:{{ chart_height }}px;width:{{ chart_width }}px'> </svg>
+</div>
