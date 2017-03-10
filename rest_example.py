@@ -202,5 +202,16 @@ eqh_list = get("col/eq")["result"]
 eqtyp_list = filter(lambda x: x != "cnone", [eqh["sl"]["eqtyp"] for eqh in eqh_list if (eqh["type"] == "slot")])
 
 
+card_list = []
+for eqh in get("col/eqh")["result"]:
+  if (eqh["type"] == "slot") and (eqh["sl"]["eqtyp"] != "cnone"):
+    card_list.append(eqh["name"])
+    card_list.append(eqh["sl"]["eqtyp"])
+    card_list.append(eqh["sl"]["pslid"])
+    #print eqh["sl"]
+print card_list
+
 """
+
+
 
