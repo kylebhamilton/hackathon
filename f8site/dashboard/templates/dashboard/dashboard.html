@@ -2,9 +2,8 @@
 {% load chart_tags %}
 
 <head>
-    <link rel="stylesheet" type="text/css" media="screen" href="{% static 'dashboard/simple-grid.css' %}"/>
-    <link rel="stylesheet" type="text/css" href="{% static 'dashboard/table.css' %}"/>
-    {% include 'dashboard/nvd3_header.html' %}
+    <link rel="stylesheet" type="text/css" media="screen" href="{% static 'dashboard/dashboard.css' %}"/>
+    {% include 'dashboard/gauge_header.html' %}
 </head>
 
 
@@ -12,40 +11,49 @@
 
     <div class="container">
 
-      {% for uri, name, cports, nports in cards %}
+      {% for uri, name, cports, nports in data %}
       <div class="row">
-        <div class="col-12">
-          <h2>{{ uri }} - {{ name }}</h2>
+          <div class="row">
+            <div class="col-12">
+                <h2>{{ uri }} - {{ name }}</h2>
+            </div>
         </div>
-      </div>
 
-      <div class="row">
-        <div class="col-3">
-          <h3>OPR</h3>
-          <img src="{% static 'dashboard/gauge.png' %}"/>
+        <div class="row">
+            <div class="col-1 centered" style="text-align:left">
+                <h3>Rx</h3>
+            </div>
+            <div class="col-3" style="text-align:left">
+                {% gauge "gauge_"|add:uri|add:"_1" -20 -12 0 %}
+            </div>
+            <div class="col-4" style="text-align:center">
+                <h3>Config Data</h3>
+            </div>
+            <div class="col-3" style="text-align:right">
+                {% gauge "gauge_"|add:uri|add:"_2" -20 -12 0 %}
+            </div>
+            <div class="col-1 centered" style="text-align:left">
+                <h3>Tx</h3>
+            </div>
         </div>
-        <div class="col-6">
-          <h3>(Config Data)</h3>
-        </div>
-        <div class="col-3">
-          <h3>OPT</h3>
-          <img src="{% static 'dashboard/gauge.png' %}"/>
-        </div>
-      </div>
 
-      <div class="row">
-        <div class="col-3">
-          <h3>OPT</h3>
-          <img src="{% static 'dashboard/gauge.png' %}"/>
+        <div class="row">
+            <div class="col-1 centered" style="text-align:left">
+                <h3>Tx</h3>
+            </div>
+            <div class="col-3" style="text-align:left">
+                {% gauge "gauge_"|add:uri|add:"_3" -20 -12 0 %}
+            </div>
+            <div class="col-4" style="text-align:center">
+                <h3>Config Data</h3>
+            </div>
+            <div class="col-3" style="text-align:right">
+                {% gauge "gauge_"|add:uri|add:"_4" -20 -12 0 %}
+            </div>
+            <div class="col-1 centered" style="text-align:left">
+                <h3>Rx</h3>
+            </div>
         </div>
-        <div class="col-6">
-          <h3>(Config Data)</h3>
-        </div>
-        <div class="col-3">
-          <h3>OPR</h3>
-          <img src="{% static 'dashboard/gauge.png' %}"/>
-        </div>
-      </div>
       {% endfor %}
 
     </div>

@@ -1,0 +1,44 @@
+
+{% load staticfiles %}
+
+<head>
+<meta charset="utf-8">
+{% if include_header %}
+  {% include 'dashboard/gauge_header.html' %}
+{% endif %}
+</head>
+
+<body ng-app="myApp">
+    <div ng-controller="{{ name }}">
+        <div width=240 ng-radial-gauge ranges="ranges" value="value" value-unit="unit" precision="precision" lower-limit="lowerLimit" upper-limit="upperLimit"></div>
+    </div>
+</body>
+
+
+<script>
+app.controller('{{ name }}', ['$scope', function ($scope) {
+    $scope.value = {{ cur }};
+    $scope.upperLimit = {{ max }};
+    $scope.lowerLimit = {{ min }};
+    $scope.unit = "{{ unit }}";
+    $scope.precision = 2;
+    $scope.ranges = [
+        {
+            min: {{ min }},
+            max: {{ lo }},
+            color: '#FDC702'
+        },
+        {
+            min: {{ lo }},
+            max: {{ hi }},
+            color: '#8DCA2F'
+        },
+        {
+            min: {{ hi }},
+            max: {{ max }},
+            color: '#FDC702'
+        }
+    ];
+}]);
+</script>
+
