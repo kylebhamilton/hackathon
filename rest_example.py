@@ -160,9 +160,9 @@ login(ip)
 ignore_slot = '6'
 
 #GET ALL PTPs FROM THE SYSTEM
-dict=get_col('col/ptp')
+dict=get('col/ptp')
 list=dict["result"]
-list_of_interfaces = [] 
+list_of_interfaces = []
 for row in list:
   #print row["self"]
   list_of_interfaces.append(row["self"])

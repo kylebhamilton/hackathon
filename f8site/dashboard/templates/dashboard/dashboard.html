@@ -2,7 +2,7 @@
 {% load chart_tags %}
 
 <head>
-    <link rel="stylesheet" type="text/css" media="screen" href="{% static 'dashboard/dashboard.css' %}?column_width=0&column_amount=3&gutter_width=0"/>
+    <link rel="stylesheet" type="text/css" media="screen" href="{% static 'dashboard/simple-grid.css' %}"/>
     <link rel="stylesheet" type="text/css" href="{% static 'dashboard/table.css' %}"/>
     {% include 'dashboard/nvd3_header.html' %}
 </head>
@@ -10,22 +10,43 @@
 
 <body>
 
-    <div class="container container_3">
+    <div class="container">
 
       {% for uri, name, cports, nports in cards %}
-        <h1 class="grid_3">{{ uri }} - {{ name }}</h1>
-        <div class='clear'>&nbsp;</div>
-        <div class='grid_1'><p>
-            {{ cports }}
-        </p></div>
-        <div class='grid_1'><p>
-            (Config Data)
-        </p></div>
-        <div class='grid_1'><p>
-            {{ nports }}
-        </p></div>
-      {% endfor %}
+      <div class="row">
+        <div class="col-12">
+          <h2>{{ uri }} - {{ name }}</h2>
+        </div>
+      </div>
 
+      <div class="row">
+        <div class="col-3">
+          <h3>OPR</h3>
+          <img src="{% static 'dashboard/gauge.png' %}"/>
+        </div>
+        <div class="col-6">
+          <h3>(Config Data)</h3>
+        </div>
+        <div class="col-3">
+          <h3>OPT</h3>
+          <img src="{% static 'dashboard/gauge.png' %}"/>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-3">
+          <h3>OPT</h3>
+          <img src="{% static 'dashboard/gauge.png' %}"/>
+        </div>
+        <div class="col-6">
+          <h3>(Config Data)</h3>
+        </div>
+        <div class="col-3">
+          <h3>OPR</h3>
+          <img src="{% static 'dashboard/gauge.png' %}"/>
+        </div>
+      </div>
+      {% endfor %}
 
     </div>
 

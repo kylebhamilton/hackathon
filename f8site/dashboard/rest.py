@@ -10,22 +10,22 @@ DEFAULT_CONTENT_TYPE = "application/json; ext=nn"
 
 OPTICAL_PMS_BY_EQTYP = {
   "qflex": [
-    "ptp/cl,1/opt",
+    "ptp/cl,1/optm",
     #"ptp/cl,1/optm/optl/1",
     #"ptp/cl,1/optm/optl/2",
     #"ptp/cl,1/optm/optl/3",
     #"ptp/cl,1/optm/optl/4",
-    "ptp/cl,2/opt",
+    "ptp/cl,2/optm",
     #"ptp/cl,2/optm/optl/1",
     #"ptp/cl,2/optm/optl/2",
     #"ptp/cl,2/optm/optl/3",
     #"ptp/cl,2/optm/optl/4",
-    "ptp/cl,3/opt",
+    "ptp/cl,3/optm",
     #"ptp/cl,3/optm/optl/1",
     #"ptp/cl,3/optm/optl/2",
     #"ptp/cl,3/optm/optl/3",
     #"ptp/cl,3/optm/optl/4",
-    "ptp/cl,4/opt",
+    "ptp/cl,4/optm",
     #"ptp/cl,4/optm/optl/1",
     #"ptp/cl,4/optm/optl/2",
     #"ptp/cl,4/optm/optl/3",
@@ -54,20 +54,6 @@ OPTICAL_PMS_BY_EQTYP = {
   ],
 }
 
-#QFLEX NETWORK
-#slot_id=1
-#port="nw"
-#uri="/mit/me/1/eqh/shelf,%s/eqh/slot,%s/eq/card/ptp/%s,1/opt" % (shelf_id,slot_id,port)
-#dict=get_pm(uri)
-#print dict
-
-#QFLEX CLIENT OPTM - currently broken
-#slot_id=1
-#port="cl"
-#uri="/mit/me/1/eqh/shelf,%s/eqh/slot,%s/eq/card/ptp/%s,1/optm/optl/1" % (shelf_id,slot_id,port)
-#dict=get_pm(uri)
-#print dict
-
 
 def print_as_json(data, indent=2):
   print json.dumps(data, indent=indent)
@@ -95,6 +81,7 @@ class AdvaRestSession(requests.Session):
       self.logout()
     except Exception, msg:
       print "Failed __del__(). Exception: %s" % msg
+    super(AdvaRestSession, self).close()
 
 
   def login(self, username="admin", password="CHGME.1a"):
@@ -108,6 +95,7 @@ class AdvaRestSession(requests.Session):
     self.token = resp.headers["X-Auth-Token"]
 
   def logout(self):
+    print "*** AdvaRestSession.logout() ***"
     kwargs = {
       "url": "%s/auth?actn=lgout" % (self.base_url),
       "headers": self.default_headers,
@@ -178,17 +166,16 @@ class AdvaRestSession(requests.Session):
   def get_optical_pms(self):
     is_print = True
     result_dict = OrderedDict()
-    for (card_uri, eqtyp) in self.get_cards():
-      if eqtyp in OPTICAL_PMS_BY_EQTYP:
-        if is_print: print "(%s, %s):" % (card_uri, eqtyp)
-        result_dict[card_uri] = OrderedDict()
-        for rel_uri in OPTICAL_PMS_BY_EQTYP[eqtyp]:
-          if is_print: print "  %s:" % (rel_uri)
-          pm_uri = "%s/%s" % (card_uri, rel_uri)
-          result_dict[card_uri][rel_uri] = self.get_optical_pm(pm_uri)
-          if is_print:
-            for (pm_name, values) in result_dict[card_uri][rel_uri].iteritems():
-              print "    %s: %s" % (pm_name, values)
+    for (card_uri, eqtyp) in self.get_cards(True):
+      if is_print: print "(%s, %s):" % (card_uri, eqtyp)
+      result_dict[card_uri] = OrderedDict()
+      for rel_uri in OPTICAL_PMS_BY_EQTYP[eqtyp]:
+        if is_print: print "  %s:" % (rel_uri)
+        pm_uri = "%s/%s" % (card_uri, rel_uri)
+        result_dict[card_uri][rel_uri] = self.get_optical_pm(pm_uri)
+        if is_print:
+          for (pm_name, values) in result_dict[card_uri][rel_uri].iteritems():
+            print "    %s: %s" % (pm_name, values)
 
     return result_dict
 

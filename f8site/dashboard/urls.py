@@ -4,7 +4,6 @@ from . import views
 
 urlpatterns = [
     url(r'^$', views.index, name='index'),
-    url(r'^node$', views.node, name='node'),
 
     url(r'^pm.json$', views.pm_json, name='pm_json'),
     url(r'^pm$', views.pm, name='pm'),

@@ -11,30 +11,29 @@ from rest import AdvaRestSession
 
 
 def index(request):
-  #data = session.get("col/eqh")
-  return JsonResponse(data, safe=False)
+  if "ip" in request.GET:
+    session = AdvaRestSession(request.GET["ip"])
 
-def node(request):
-  session = AdvaRestSession(request.GET["ip"])
+    cards = []
+    pm_data = session.get_optical_pms()
+    for (uri, pm_data) in pm_data.iteritems(): #session.get_cards(True):
+      card_dict = session.get(uri)
+      cports = [v for (k, v) in pm_data.iteritems() if "ptp/cl," in k]
+      nports = [v for (k, v) in pm_data.iteritems() if "ptp/nw," in k]
+      cards.append((
+        card_dict["dnm"],
+        card_dict["name"],
+        json.dumps(cports, indent=2),
+        json.dumps(nports, indent=2),
+      ))
 
-  cards = []
-  pm_data = session.get_optical_pms()
-  for (uri, pm_data) in pm_data.iteritems(): #session.get_cards(True):
-    card_dict = session.get(uri)
-    cports = [v for (k, v) in pm_data.iteritems() if "ptp/cl," in k]
-    nports = [v for (k, v) in pm_data.iteritems() if "ptp/nw," in k]
-    cards.append((
-      card_dict["dnm"],
-      card_dict["name"],
-      json.dumps(cports, indent=2),
-      json.dumps(nports, indent=2),
-    ))
-
-  context = {
-    "cards": cards,
-  }
-  print "context = %s" % context
-  return render(request, 'dashboard/dashboard.html', context)
+    context = {
+      "cards": cards,
+    }
+    print "context = %s" % context
+    return render(request, 'dashboard/dashboard.html', context)
+  else:
+    return HttpResponse("Missing ip in URL")
 
 
 def pm(request):
