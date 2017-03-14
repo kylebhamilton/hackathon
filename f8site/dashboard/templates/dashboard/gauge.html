@@ -1,16 +1,15 @@
 
 {% load staticfiles %}
 
-<head>
-<meta charset="utf-8">
 {% if include_header %}
+<head>
   {% include 'dashboard/gauge_header.html' %}
-{% endif %}
 </head>
+{% endif %}
 
 <body ng-app="myApp">
     <div ng-controller="{{ name }}">
-        <div width=240 ng-radial-gauge ranges="ranges" value="value" value-unit="unit" precision="precision" lower-limit="lowerLimit" upper-limit="upperLimit"></div>
+        <div width=300 ng-radial-gauge ranges="ranges" value="value" value-unit="unit" precision="precision" lower-limit="lowerLimit" upper-limit="upperLimit"></div>
     </div>
 </body>
 

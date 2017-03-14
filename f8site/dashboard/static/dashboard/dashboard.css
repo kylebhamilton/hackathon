@@ -34,6 +34,7 @@ h1 {
 
 h2 {
   font-size: 2rem;
+  color: white;
 }
 
 h3 {
@@ -238,7 +239,8 @@ p {
 }
 
 .centered {
-  vertical-align: middle;
+    display: block;
+    position: relative;
 }
 
 
@@ -246,8 +248,29 @@ p {
   width: 96%;
 }
 
-.gauge {
-    display:inline-block;
-    width:100%;
-    height:100%;
+.header-title {
+  background: black;
+}
+
+.header-title:hover {
+    color:yellow;
+    cursor:pointer;
+}
+
+.header-title:hover h2 {
+    color:yellow;
+}
+
+.pm {
+    display: block;
+    line-height: 150px;
+}
+
+.float-right {
+    display: block;
+    margin:auto;
+}
+
+.header-path {
+    border-bottom: dotted;
 }

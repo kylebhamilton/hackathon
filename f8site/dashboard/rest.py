@@ -45,6 +45,7 @@ OPTICAL_PMS_BY_EQTYP = {
   ],
 
   "fd40d24l": [
+    "ptp/nw,1/ctp/oms/oms",
     "ptp/nw,1/opt",
   ],
 
@@ -95,7 +96,6 @@ class AdvaRestSession(requests.Session):
     self.token = resp.headers["X-Auth-Token"]
 
   def logout(self):
-    print "*** AdvaRestSession.logout() ***"
     kwargs = {
       "url": "%s/auth?actn=lgout" % (self.base_url),
       "headers": self.default_headers,
@@ -118,10 +118,12 @@ class AdvaRestSession(requests.Session):
     card_list = []
     for eqh in self.get("col/eqh")["result"]:
       if (eqh["type"] == "slot") and (eqh["sl"]["eqtyp"] != "cnone"):
+        card_uri = eqh["self"] + "/eq/card"
         eqtyp = eqh["sl"]["eqtyp"]
+        _type = self.get(card_uri + "/card")["type"]
         if filter_with_optical and (eqtyp not in OPTICAL_PMS_BY_EQTYP):
           continue
-        card_list.append((eqh["self"] + "/eq/card", eqtyp))
+        card_list.append((card_uri, eqtyp, _type))
     #print card_list
     return card_list
 
@@ -133,8 +135,7 @@ class AdvaRestSession(requests.Session):
 
     result_dict = OrderedDict()
 
-    print "uri = %s" % uri
-
+    #print "uri = %s" % uri
     pm_ent = self.get("%s/pm" % uri)["pment"]
 
     # Get current nint PM data
@@ -144,6 +145,9 @@ class AdvaRestSession(requests.Session):
     prof_name = nint_dict["name"]
 
     for pm_name in nint_dict["pmdata"]:
+      if pm_name not in ["opr", "opt"]:
+        continue
+
       curr = nint_dict["pmdata"][pm_name]
 
       # Get TCA info from PM profile
@@ -153,10 +157,12 @@ class AdvaRestSession(requests.Session):
       thrh = tca_dict["thrh"]
 
       # Build dictionary from all datas
-      result_dict[pm_name] = OrderedDict()
-      result_dict[pm_name]["min"] = thrl
-      result_dict[pm_name]["cur"] = curr
-      result_dict[pm_name]["max"] = thrh
+      result_dict[pm_name] = {
+        #"name": pm_name,
+        "thrl": thrl,
+        "curr": curr,
+        "thrh": thrh,
+      }
 
     if _pm_name:
       return result_dict[_pm_name]
@@ -166,8 +172,8 @@ class AdvaRestSession(requests.Session):
   def get_optical_pms(self):
     is_print = True
     result_dict = OrderedDict()
-    for (card_uri, eqtyp) in self.get_cards(True):
-      if is_print: print "(%s, %s):" % (card_uri, eqtyp)
+    for (card_uri, eqtyp, card_type) in self.get_cards(True):
+      if is_print: print "(%s, %s, %s):" % (card_uri, eqtyp, card_type)
       result_dict[card_uri] = OrderedDict()
       for rel_uri in OPTICAL_PMS_BY_EQTYP[eqtyp]:
         if is_print: print "  %s:" % (rel_uri)
@@ -178,6 +184,8 @@ class AdvaRestSession(requests.Session):
             print "    %s: %s" % (pm_name, values)
 
     return result_dict
+
+
 
 def example(ip_address):
   session = AdvaRestSession(ip_address)

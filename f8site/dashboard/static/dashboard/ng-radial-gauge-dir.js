@@ -17,17 +17,17 @@ app.directive('ngRadialGauge', ['$window', '$timeout', 'd3Service',
              d3Service.d3().then(function (d3) {
                  var renderTimeout;
                  var width = parseInt(attrs.width) || 300;
-                 var innerRadius = Math.round((width * 130) / 300);
+                 var innerRadius = Math.round((width * 120) / 300);
                  var outterRadius = Math.round((width * 145) / 300);
                  var majorGraduations = parseInt(attrs.majorGraduations - 1) || 5;
                  var minorGraduations = parseInt(attrs.minorGraduations) || 10;
-                 var majorGraduationLenght = Math.round((width * 16) / 300);
+                 var majorGraduationLenght = Math.round((width * 20) / 300);
                  var minorGraduationLenght = Math.round((width * 10) / 300);
-                 var majorGraduationMarginTop = Math.round((width * 7) / 300);
+                 var majorGraduationMarginTop = Math.round((width * 0) / 300);
                  var majorGraduationColor = attrs.majorGraduationColor || "#B0B0B0";
                  var minorGraduationColor = attrs.minorGraduationColor || "#D0D0D0";
-                 var majorGraduationTextColor = attrs.majorGraduationTextColor || "#6C6C6C";
-                 var needleColor = attrs.needleColor || "#416094";
+                 var majorGraduationTextColor = attrs.majorGraduationTextColor || "#2a3e5f";
+                 var needleColor = attrs.needleColor || "#2a3e5f";
                  var valueVerticalOffset = Math.round((width * 30) / 300);
                  var unactiveColor = "#D7D7D7";
                  var majorGraduationTextSize = parseInt(attrs.majorGraduationTextSize);
@@ -124,8 +124,8 @@ app.directive('ngRadialGauge', ['$window', '$timeout', 'd3Service',
                      var textHorizontalPadding = 5;
 
                      var lastGraduationValue = majorGraduationValues[majorGraduationValues.length - 1];
-                     var textSize = isNaN(majorGraduationTextSize) ? (width * 12) / 300 : majorGraduationTextSize;
-                     var fontStyle = textSize + "px Courier";
+                     var textSize = isNaN(majorGraduationTextSize) ? (width * 15) / 300 : majorGraduationTextSize;
+                     var fontStyle = textSize + "px Calibri";
 
                      var dummyText = svg.append("text")
                          .attr("x", centerX)
@@ -186,7 +186,7 @@ app.directive('ngRadialGauge', ['$window', '$timeout', 'd3Service',
                          var needleValue = ((scope.value - minLimit) * 240 / (maxLimit - minLimit)) - 30;
                          var thetaRad = needleValue * Math.PI / 180;
 
-                         var needleLen = innerRadius - majorGraduationLenght - majorGraduationMarginTop;
+                         var needleLen = innerRadius + majorGraduationLenght + majorGraduationMarginTop;
                          var needleRadius = (width * 2.5) / 300;
                          var topX = centerX - needleLen * Math.cos(thetaRad);
                          var topY = centerY - needleLen * Math.sin(thetaRad);
@@ -195,8 +195,8 @@ app.directive('ngRadialGauge', ['$window', '$timeout', 'd3Service',
                          var rightX = centerX - needleRadius * Math.cos(thetaRad + Math.PI / 2);
                          var rightY = centerY - needleRadius * Math.sin(thetaRad + Math.PI / 2);
                          var triangle = "M " + leftX + " " + leftY + " L " + topX + " " + topY + " L " + rightX + " " + rightY;
-                         var textSize = isNaN(needleValueTextSize) ? (width * 12) / 300 : needleValueTextSize;
-                         var fontStyle = textSize + "px Courier";
+                         var textSize = isNaN(needleValueTextSize) ? (width * 35) / 300 : needleValueTextSize;
+                         var fontStyle = textSize + "px Berlin Sans FB";
 
                          if (scope.value >= minLimit && scope.value <= maxLimit) {
                              svg.append("svg:path")
@@ -214,7 +214,7 @@ app.directive('ngRadialGauge', ['$window', '$timeout', 'd3Service',
                              .attr("text-anchor", "middle")
                              .attr("font-weight", "bold")
                              .style("font", fontStyle)
-                             .text('[ ' + scope.value.toFixed(scope.precision) + scope.valueUnit + ' ]');
+                             .text(scope.value.toFixed(scope.precision) + " " + scope.valueUnit);
                      }
 
                      var circleRadius = (width * 6) / 300;

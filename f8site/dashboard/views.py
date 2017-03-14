@@ -10,27 +10,74 @@ from django.shortcuts import render
 from rest import AdvaRestSession
 
 
+def get_row(card_pms, left_uri, left_rx, left_tx, right_uri, right_rx, right_tx):
+  row_dict = {
+    "left": {},
+    "right": {},
+  }
+
+  for (side, uri, rx, tx) in [("left", left_uri, left_rx, left_tx), ("right", right_uri, right_rx, right_tx)]:
+    if uri and (uri in card_pms):
+      row_dict[side] = {"label" : uri}
+      if rx:
+        row_dict[side]["rx"] = {
+          "name"  : "%s: %s" % (uri, rx),
+          "lo"    : card_pms[uri][rx]["thrl"],
+          "cur"   : card_pms[uri][rx]["curr"],
+          "hi"    : card_pms[uri][rx]["thrh"],
+        }
+      if tx:
+        row_dict[side]["tx"] = {
+          "name"  : "%s: %s" % (uri, tx),
+          "lo"    : card_pms[uri][tx]["thrl"],
+          "cur"   : card_pms[uri][tx]["curr"],
+          "hi"    : card_pms[uri][tx]["thrh"],
+        }
+
+  return row_dict
+
+"""
+left_uri = ptp/cl,1/optm
+right_uri = ptp/nw,1/opt
+
+ OrderedDict([('ptp/cl,1/optm', OrderedDict([(u'opt', {'thrl': 0, 'curr': 7.4, 'thrh': 0}), (u'opr', {'thrl': 0, 'curr': 8.1, 'thrh': 0})])), ('ptp/cl,2/optm', OrderedDict([(u'opt', {'thrl': 0, 'curr': -60, 'thrh': 0}), (u'opr', {'thrl': 0, 'curr': -60, 'thrh': 0})])), ('ptp/cl,3/optm', OrderedDict([(u'opt', {'thrl': 0, 'curr': -60, 'thrh': 0}), (u'opr', {'thrl': 0, 'curr': -60, 'thrh': 0})])), ('ptp/cl,4/optm', OrderedDict([(u'opt', {'thrl': 0, 'curr': -60, 'thrh': 0}), (u'opr', {'thrl': 0, 'curr': -60, 'thrh': 0})])), ('ptp/nw,1/opt', OrderedDict([(u'opt', {'thrl': 0, 'curr': 0, 'thrh': 6}), (u'opr', {'thrl': -18, 'curr': -3.8, 'thrh': 0})])), ('ptp/nw,2/opt', OrderedDict([(u'opt', {'thrl': 0, 'curr': 0.1, 'thrh': 6}), (u'opr', {'thrl': -18, 'curr': -10.9, 'thrh': 0})]))])
+"""
+
 def index(request):
   if "ip" in request.GET:
     session = AdvaRestSession(request.GET["ip"])
 
-    cards = []
+    data = []
     pm_data = session.get_optical_pms()
-    for (uri, pm_data) in pm_data.iteritems(): #session.get_cards(True):
-      card_dict = session.get(uri)
-      cports = [v for (k, v) in pm_data.iteritems() if "ptp/cl," in k]
-      nports = [v for (k, v) in pm_data.iteritems() if "ptp/nw," in k]
-      cards.append((
-        card_dict["dnm"],
-        card_dict["name"],
-        json.dumps(cports, indent=2),
-        json.dumps(nports, indent=2),
-      ))
+    for (card_uri, card_pms) in pm_data.iteritems(): #session.get_cards(True):
+      card = session.get(card_uri)
+
+      rows = []
+      if card["card"]["type"] == "qflex":
+        rows.append(get_row(card_pms,
+                            "ptp/cl,1/optm", "opr", "opt",
+                            "ptp/nw,1/opt",  "opr", "opt"))
+        rows.append(get_row(card_pms,
+                            "ptp/cl,3/optm", "opr", "opt",
+                            "ptp/nw,2/opt",  "opr", "opt"))
+      elif card["card"]["type"] == "fd40d24l":
+        rows.append(get_row(card_pms,
+                            "ptp/nw,1/ctp/oms/oms", None,  "opr",
+                            "ptp/nw,1/opt",         "opr", None))
+      else:
+        rows.append(get_row(card_pms,
+                            "ptp/cl,1/opt", "opr", "opt",
+                            "ptp/nw,1/opt", "opr", "opt"))
+
+      data.append({
+        "addr": card["dnm"],
+        "name": card["name"],
+        "rows": rows,
+      })
 
     context = {
-      "cards": cards,
+      "data": data,
     }
-    print "context = %s" % context
     return render(request, 'dashboard/dashboard.html', context)
   else:
     return HttpResponse("Missing ip in URL")

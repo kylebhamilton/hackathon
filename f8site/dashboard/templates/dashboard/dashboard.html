@@ -2,59 +2,170 @@
 {% load chart_tags %}
 
 <head>
+    <meta charset="utf-8">
     <link rel="stylesheet" type="text/css" media="screen" href="{% static 'dashboard/dashboard.css' %}"/>
     {% include 'dashboard/gauge_header.html' %}
+
+    <script>
+    $(document).ready(function() {
+      /*$(".data-row").hide();
+      $("#header-title0").click(function() {
+          $("#data-row0").slideToggle("slow");
+      });
+      $("#header-title1").click(function() {
+          $("#data-row1").slideToggle("slow");
+      });*/
+
+      //dynamically assign ids
+      $(".data-row").hide();
+      var x = 0;
+      var elements = document.getElementsByClassName("data-row");
+      for(x = 0; x < elements.length; x++)
+      {
+        elements[x].setAttribute("id", "data-row" + String(x));
+
+      }
+      var elements = document.getElementsByClassName("header-title");
+      for(x = 0; x < elements.length; x++)
+      {
+        elements[x].setAttribute("id","header-title" + String(x));
+      }
+
+      //transition
+      $("#header-title0").click(function() {
+          $("#data-row0").slideToggle("slow");
+      });
+      $("#header-title1").click(function() {
+          $("#data-row1").slideToggle("slow");
+      });
+      $("#header-title2").click(function() {
+          $("#data-row2").slideToggle("slow");
+      });
+      $("#header-title3").click(function() {
+          $("#data-row3").slideToggle("slow");
+      });
+      $("#header-title4").click(function() {
+          $("#data-row4").slideToggle("slow");
+      });
+      $("#header-title5").click(function() {
+          $("#data-row5").slideToggle("slow");
+      });
+      $("#header-title6").click(function() {
+          $("#data-row6").slideToggle("slow");
+      });
+
+
+    });
+    </script>
+
 </head>
 
 
 <body>
 
+    <img src="https://upload.wikimedia.org/wikipedia/commons/b/ba/ADVA_Optical_Networking_Logo.svg" class="float-right" width=475 height=170>
+
     <div class="container">
 
-      {% for uri, name, cports, nports in data %}
-      <div class="row">
-          <div class="row">
-            <div class="col-12">
-                <h2>{{ uri }} - {{ name }}</h2>
+{% for card_data in data %}
+
+        <div class="row header-title">
+            <div class="col-12" style="text-align:left">
+                <h2>{{ card_data.addr }} - {{ card_data.name }}</h2>
             </div>
         </div>
 
-        <div class="row">
-            <div class="col-1 centered" style="text-align:left">
-                <h3>Rx</h3>
-            </div>
-            <div class="col-3" style="text-align:left">
-                {% gauge "gauge_"|add:uri|add:"_1" -20 -12 0 %}
-            </div>
-            <div class="col-4" style="text-align:center">
-                <h3>Config Data</h3>
-            </div>
-            <div class="col-3" style="text-align:right">
-                {% gauge "gauge_"|add:uri|add:"_2" -20 -12 0 %}
-            </div>
-            <div class="col-1 centered" style="text-align:left">
-                <h3>Tx</h3>
-            </div>
-        </div>
+        <div class="data-row">
 
-        <div class="row">
-            <div class="col-1 centered" style="text-align:left">
-                <h3>Tx</h3>
+{% for row in card_data.rows %}
+
+            <div class="row">
+                <div class="col-6" style="text-align:left">
+                    <h2>{{ name }}</h2>
+                </div>
+                <div class="col-6" style="text-right">
+                    <h2>{{ name }}</h2>
+                </div>
             </div>
-            <div class="col-3" style="text-align:left">
-                {% gauge "gauge_"|add:uri|add:"_3" -20 -12 0 %}
+
+
+            <div class="row">
+                <div class="col-1 centered" style="text-align:left">
+                </div>
+                <div class="col-3" style="text-align:center">
+                    {% if row.left %}
+                        <h3> {{ row.left.label }} </h3>
+                    {% endif %}
+                </div>
+                <div class="col-4" style="text-align:center">
+                </div>
+                <div class="col-3" style="text-align:center">
+                    {% if row.right %}
+                        <h3> {{ row.right.label }} </h3>
+                    {% endif %}
+                </div>
+                <div class="col-1 centered" style="text-align:right">
+                </div>
             </div>
-            <div class="col-4" style="text-align:center">
-                <h3>Config Data</h3>
+
+            {% if row.left.rx or row.right.tx %}
+
+            <div class="row">
+                <div class="col-1" style="text-align:left">
+                    <h3 class="pm">Rx</h3>
+                </div>
+                <div class="col-3" style="text-align:center">
+                    {% if row.left.rx %}
+                        {% gauge "gauge_"|add:card_data.addr|add:"_"|add:row.left.label|add:"_rx" row.left.rx.lo row.left.rx.cur row.left.rx.hi %}
+                    {% endif %}
+                </div>
+                <div class="col-4" style="text-align:center">
+                    <h3>Config Data</h3>
+                </div>
+                <div class="col-3" style="text-align:center">
+                    {% if row.right.tx %}
+                        {% gauge "gauge_"|add:card_data.addr|add:"_"|add:row.right.label|add:"_tx" row.right.tx.lo row.right.tx.cur row.right.tx.hi %}
+                    {% endif %}
+                </div>
+                <div class="col-1 centered" style="text-align:right">
+                    <h3 class="pm">Tx</h3>
+                </div>
             </div>
-            <div class="col-3" style="text-align:right">
-                {% gauge "gauge_"|add:uri|add:"_4" -20 -12 0 %}
+
+            {% endif %}
+
+
+            {% if row.left.tx or row.right.rx %}
+
+            <div class="row bordered">
+                <div class="col-1 centered" style="text-align:left">
+                    <h3 class="pm">Tx</h3>
+                </div>
+                <div class="col-3" style="text-align:center">
+                    {% if row.left.tx %}
+                        {% gauge "gauge_"|add:card_data.addr|add:"_"|add:row.left.label|add:"_tx" row.left.tx.lo row.left.tx.cur row.left.tx.hi %}
+                    {% endif %}
+                </div>
+                <div class="col-4" style="text-align:center">
+                    <h3>Config Data</h3>
+                </div>
+                <div class="col-3" style="text-align:center">
+                    {% if row.right.rx %}
+                        {% gauge "gauge_"|add:card_data.addr|add:"_"|add:row.right.label|add:"_rx" row.right.rx.lo row.right.rx.cur row.right.rx.hi %}
+                    {% endif %}
+                </div>
+                <div class="col-1 centered" style="text-align:right">
+                    <h3 class="pm">Rx</h3>
+                </div>
             </div>
-            <div class="col-1 centered" style="text-align:left">
-                <h3>Rx</h3>
-            </div>
-        </div>
-      {% endfor %}
+
+            {% endif %}
+
+{% endfor %}
+
+      </div>
+
+{% endfor %}
 
     </div>
 
