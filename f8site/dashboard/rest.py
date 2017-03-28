@@ -93,6 +93,7 @@ class AdvaRestSession(requests.Session):
       "verify": False
     }
     resp = self.post(**kwargs)
+    resp.raise_for_status()
     self.token = resp.headers["X-Auth-Token"]
 
   def logout(self):
@@ -101,7 +102,8 @@ class AdvaRestSession(requests.Session):
       "headers": self.default_headers,
       "verify": False
     }
-    self.post(**kwargs)
+    resp = super(AdvaRestSession, self).get(**kwargs)
+    resp.raise_for_status()
     self.token = None
 
 
@@ -112,6 +114,7 @@ class AdvaRestSession(requests.Session):
       "verify": False
     }
     resp = super(AdvaRestSession, self).get(**kwargs)
+    resp.raise_for_status()
     return resp.json()
 
   def get_cards(self, filter_with_optical=False):
